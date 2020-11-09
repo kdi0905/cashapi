@@ -7,54 +7,59 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <style>
 body{
-	padding: 0;
-	margin: 0;
-	width: 100%; 
+	margin: auto;
+	width: 1300px; 
 	height : 100%; 
-	overflow: hidden;
-	background-position : 0 0;
-	background-repeat: no-repeat; 
-	background-attachment :fixed; 
-	background-size : cover; 
-	position :relative; 
-	overflow-y: auto;
+	background-color: #fafbfc;
+}
+thead{
+	background-color:  #D5D5D5;
+}
+tbody{
+	background-color: white;
 }
 	.hint{
 		color: green;
 	}
 	.menubg {
 	background-color: #EAEAEA;
+		height: 60px;
 }
 
 </style>
 </head>
 <body>
+<div style="margin-left: 10%; margin-right: 10%">
+
+		<div class="menubg text-center"  >
 	
-<div style="margin-left: 10%; margin-right:10%;">
-	<div class="menubg" >
-		
-		<a class="btn text-secondary" href="http://localhost/admin/index" style="font-size: 30px;">CASHBOOK</a>
-		
-		<a class="btn text-secondary" style="margin-left: 100px" href="http://localhost/admin/index">홈</a>	
-		<a class="btn text-secondary"  href="http://localhost/admin/noticeList/1">공지사항</a>
-		<a class="btn text-secondary"  href="http://localhost/admin/cashbookByMonth/now/-1/-1">가계부</a>
-		<a class="btn text-secondary" href="cashStats.html">통계</a>
-		<a style="float: right; margin-top: 10px;" class="btn text-info" href="http://localhost/admin/logout">로그아웃</a>		
-		
+		<a class="btn text-secondary" href="/admin/index" style="font-size: 30px; float: left;">CASHBOOK</a>
+	
+		<a class="btn text-secondary" style="margin-top: 10px;"  href="http://localhost/admin/index">홈</a>	
+		<a class="btn text-secondary" style="margin-top: 10px;"  href="http://localhost/admin/noticeList/1">공지사항</a>
+		<a class="btn text-secondary" style="margin-top: 10px;"  href="http://localhost/admin/cashbookByMonth/now/-1/-1">가계부</a>
+		<a class="btn text-secondary" style="margin-top: 10px;"  href="cashStats.html">통계</a>
+		<a style="float: right; margin-top: 10px;" class="btn text-info" href="http://localhost/admin/logout">로그아웃</a>			
 	</div>
 
-	<h1>cashbook stats data</h1>
+	<h1 style="margin-top: 20px" class="text-center">가계부 통계</h1>
 	
 	<div>
 		<div><!-- 0)호출 -->	
-			<span>ex)년도별 월 지출액 : </span>
-			<button id="totalOfMonthByYearTable" type="button">Table</button>
-			<button id="totalOfMonthByYearChart" type="button">Chart</button>
-			<button id="totalOfMonthByYearExcel" type="button">Excel</button>
+		<hr style="height: 3px">
+			<div class="text-center" style=" font-size: 25px; margin-top: 10px;">★년도별 월 지출액★</div>
+			<div class="hint text-center" style=" margin-bottom: 20px; font-size: 13px; ">데이터결과물의 테이블 or 차트 or 엑셀파일 다운로드</div>
+			<div class="text-center">
+			<button id="totalOfMonthByYearTable" class="btn btn-secondary " style="float: left" type="button">Table</button>
+		
+			<button  id="totalOfMonthByYearChart" class="btn btn-secondary "  type="button">Chart</button>
+		
+			<button id="totalOfMonthByYearExcel" class="btn btn-secondary" style ="float: right"type="button">Excel</button>
+			</div>
 		</div>
 	</div>
 	<div><!-- 0)출력 -->
-		<span id="totalOfMonthByYearTableResult"class="hint" style="margin-top: 10px;">데이터결과물의 테이블 or 차트 or 엑셀파일 다운로드</span>
+		<span id="totalOfMonthByYearTableResult" style="text-align:center; margin-top: 20px; font-size: 13px; "></span>
 	</div>
 </div>
 
@@ -69,7 +74,8 @@ body{
 			success:function(data){
 				console.log(data);
 				let html=` 
-					<table border="1">
+					<table class="table table-bordered" style="text-align:center; margin-top: 20px; ">
+						<thead>
 						<tr>
 							<th>january</th>
 							<th>february</th>
@@ -84,6 +90,8 @@ body{
 							<th>november</th>
 							<th>december</th>
 						</tr>
+						</thead>
+						<tbody>
 						<tr>
 							<td>${data.january}</td>
 							<td>${data.february}</td>
@@ -98,6 +106,7 @@ body{
 							<td>${data.november}</td>
 							<td>${data.december}</td>
 						</tr>
+						</tbody>
 					</table>
 				`;
 				$('#totalOfMonthByYearTableResult').html(html);
