@@ -1,5 +1,6 @@
 package kr.co.gdu.cashapi.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,11 @@ import kr.co.gdu.cashapi.mapper.CashStatsMapper;
 @Transactional
 public class CashStatsService {
 	@Autowired CashStatsMapper cashStatsMapper;
-	public Map<String, Object> getTotalOfMonthByYear (){
-		return cashStatsMapper.selectTotalOfMonthByYear();
+	public Map<String, Object> getTotalOfMonthByYear(int year){
+		return cashStatsMapper.selectTotalOfMonthByYear(year);
+	}
+	
+	public Map<String,Object> getTotaloutAndinByYear(int year){
+		return cashStatsMapper.selectTotalOutAndinByYear(year);
 	}
 }

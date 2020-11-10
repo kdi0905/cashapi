@@ -18,12 +18,15 @@ thead{
 tbody{
 	background-color: white;
 }
-	.hint{
+.hint{
 		color: green;
 	}
-	.menubg {
+.menubg {
 	background-color: #EAEAEA;
 		height: 60px;
+}
+.blue{
+	color: #6799FF;
 }
 
 </style>
@@ -33,7 +36,7 @@ tbody{
 
 		<div class="menubg text-center"  >
 	
-		<a class="btn text-secondary" href="/admin/index" style="font-size: 30px; float: left;">CASHBOOK</a>
+		<a class="btn text-secondary" href="http://localhost/admin/index" style="font-size: 30px; float: left;">CASHBOOK</a>
 	
 		<a class="btn text-secondary" style="margin-top: 10px;"  href="http://localhost/admin/index">홈</a>	
 		<a class="btn text-secondary" style="margin-top: 10px;"  href="http://localhost/admin/noticeList/1">공지사항</a>
@@ -43,12 +46,17 @@ tbody{
 	</div>
 
 	<h1 style="margin-top: 20px" class="text-center">가계부 통계</h1>
+	<div class="text-center">
+	<input type="text" id="year" placeholder="년도 입력하세요."> <span class="text-danger" id="yearCheck"></span>
+	</div>
 	
 	<div>
 		<div><!-- 0)호출 -->	
 		<hr style="height: 3px">
-			<div class="text-center" style=" font-size: 25px; margin-top: 10px;">★년도별 월 지출액★</div>
+			<div class="text-center" style=" font-size: 25px; margin-top: 10px;">★년도별 월 지출★</div>
 			<div class="hint text-center" style=" margin-bottom: 20px; font-size: 13px; ">데이터결과물의 테이블 or 차트 or 엑셀파일 다운로드</div>
+			<div id="selectYear">
+			</div>
 			<div class="text-center">
 			<button id="totalOfMonthByYearTable" class="btn btn-secondary " style="float: left" type="button">Table</button>
 		
@@ -59,59 +67,246 @@ tbody{
 		</div>
 	</div>
 	<div><!-- 0)출력 -->
-		<span id="totalOfMonthByYearTableResult" style="text-align:center; margin-top: 20px; font-size: 13px; "></span>
+		<span  id="totalOfMonthByYearTableResult" style="text-align:center; margin-top: 20px; font-size: 13px; "></span>
+	</div>
+	<div id ="canvas" style="margin:auto; margin-top: 20px; width: 60%">
+			<!-- <canvas id="myChart"></canvas> -->
+	</div>
+	
+	<div><!-- 1)호출 -->	
+		<hr style="height: 3px">
+			<div class="text-center" style=" font-size: 25px; margin-top: 10px;">★년도별 수입/지출★</div>
+			
+			<div class="hint text-center" style=" margin-bottom: 20px; font-size: 13px; ">데이터결과물의 테이블 or 차트 or 엑셀파일 다운로드</div>
+			
+			<div id="selectYear">
+			
+			</div>
+			<div class="text-center">
+			<button id="totalOutAndInByYearTable" class="btn btn-secondary " style="float: left" type="button">Table</button>
+		
+			<button  id="totalOutAndInByYearChart" class="btn btn-secondary "  type="button">Chart</button>
+		
+			<button id="totalOutAndInByYearExcel" class="btn btn-secondary" style ="float: right"type="button">Excel</button>
+			</div>
+	</div>
+	<div  ><!-- 1)출력 -->
+		<span id="totalOutAndInByYearResult" style=" margin-top: 20px; font-size: 13px; "></span>
+	</div>
+	<div id ="piecanvas" style="margin:auto; margin-top: 20px; width: 50%">
+			<!-- <canvas id="pieChart"></canvas> -->
 	</div>
 </div>
 
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script> <!-- 차트  https://www.chartjs.org/docs/latest/getting-started/-->
 <script>
-	$('#totalOfMonthByYearTable').click(function(){
-		//$('#totalOfMonthByYearTableResult').html('totalOfMonthByYearTableResult');
+let totalOutAndInByYearTableCheck =0;
+$('#totalOutAndInByYearTable').click(function(){
+	
+	//$('#totalOfMonthByYearTableResult').html('totalOfMonthByYearTableResult');
+	if($('#year').val()==""){
+		$('#yearCheck').html('입력해주세요');
+	}else{
+		$('#yearCheck').html("");
 		$.ajax({
-			url:'/totalOfMonthByYear',
+			url:'/totalOutAndInByYear/'+$('#year').val(),
 			type:'get',
 			success:function(data){
+				
 				console.log(data);
-				let html=` 
-					<table class="table table-bordered" style="text-align:center; margin-top: 20px; ">
-						<thead>
-						<tr>
-							<th>january</th>
-							<th>february</th>
-							<th>march</th>
-							<th>april</th>
-							<th>may</th>
-							<th>june</th>
-							<th>july</th>
-							<th>august</th>
-							<th>september</th>
-							<th>octber</th>
-							<th>november</th>
-							<th>december</th>
-						</tr>
-						</thead>
-						<tbody>
-						<tr>
-							<td>${data.january}</td>
-							<td>${data.february}</td>
-							<td>${data.march}</td>
-							<td>${data.april}</td>
-							<td>${data.may}</td>
-							<td>${data.june}</td>
-							<td>${data.july}</td>
-							<td>${data.august}</td>
-							<td>${data.september}</td>
-							<td>${data.octber}</td>
-							<td>${data.november}</td>
-							<td>${data.december}</td>
-						</tr>
-						</tbody>
-					</table>
-				`;
-				$('#totalOfMonthByYearTableResult').html(html);
+				if(totalOutAndInByYearTableCheck%2==0){
+					let html=` 
+						<table class="table table-bordered" style="text-align:center; margin-top: 20px; ">
+							<thead>
+							<tr>
+								<th>년</th>
+								<th>수입</th>
+								<th>지출</th>					
+							</tr>
+							</thead>
+							<tbody>
+							<tr>
+								<td>${data.년}</td>
+								<td class="blue">${data.수입}</td>
+								<td class="text-danger">- ${data.지출}</td>				
+							</tr>
+							</tbody>
+						</table>
+					`;
+					$('#totalOutAndInByYearResult').html(html);
+					totalOutAndInByYearTableCheck+=1;
+				}else if(totalOutAndInByYearTableCheck%2==1){
+					$('#totalOutAndInByYearResult').html("");
+					totalOutAndInByYearTableCheck+=1;
+				}
 			}
 		});
+	}
+});
+	let totalOutAndInByYearChartCheck =0;
+	$('#totalOutAndInByYearChart').click(function(){
+		
+		if($('#year').val()==0){
+			$('#yearCheck').html('입력해주세요');
+		}else{
+			$('#yearCheck').html("");
+			$.ajax({
+				url:'/totalOutAndInByYear/'+$('#year').val(),
+				type:'get',
+				success:function(data){
+					if(totalOutAndInByYearChartCheck%2==0){
+						$('#piecanvas').append('<canvas id="pieChart">')
+						let pieCtx = $('#pieChart');
+							
+						console.log(data);
+						let pieChart = new Chart(pieCtx,{
+							type:'pie',
+							data:{
+								labels:['수입','지출'],//항목
+								datasets:[{
+									label:data.year, //제목
+									backgroundColor : [
+										'rgba(54, 162, 235, 0.2)',
+						                'rgba(255, 99, 132, 0.2)'],
+									borderColor : [ 
+						                'rgba(54, 162, 235, 1)',
+						                'rgba(255, 99, 132, 1)'],
+									data:[data.수입, data.지출]//데이터
+								}]
+								
+							},
+							options:{}
+						});
+						totalOutAndInByYearChartCheck+=1;
+						$('#piecanvas').append('</canvas>')
+					//if
+					}else if(totalOutAndInByYearChartCheck%2==1){
+						$('#piecanvas').html("");
+						totalOutAndInByYearChartCheck+=1;
+					}
+				}
+			});
+		}
 	});
+	let totalOfMonthByYearChartCheck =0;
+	$('#totalOfMonthByYearChart').click(function(){
+		
+		if($('#year').val()==""){
+			$('#yearCheck').html('입력해주세요');
+		}else{
+			$('#yearCheck').html("");
+			$.ajax({
+				url:'/totalOfMonthByYear/'+$('#year').val(),
+				type: 'get',
+				success:function(data){		
+					if(totalOfMonthByYearChartCheck%2==0){
+						$('#canvas').append('<canvas id="myChart">')
+					 var ctx = document.getElementById('myChart').getContext('2d');//캔퍼스태그를 가져와서 그린다. //2d,3d도화지를 가져온다.
+					//var chart = new Chart(ctx,{type:'차트 종류', data:{차트안에 사용될 모은데이터}, options:{ }});//ctx 안에 차트1개 만들기
+					 var chart = new Chart(ctx,{
+						type:'bar',
+						data:{
+							labels:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+							datasets:[{
+								label:data.year,//제목
+								backgroundColor : [
+					                'rgba(255, 99, 132, 0.2)','rgba(54, 162, 235, 0.2)',
+					                'rgba(255, 206, 86, 0.2)','rgba(75, 192, 192, 0.2)',
+					                'rgba(153, 102, 255, 0.2)','rgba(255, 159, 64, 0.2)',
+					                'rgba(255, 99, 132, 0.2)','rgba(54, 162, 235, 0.2)',
+					                'rgba(255, 206, 86, 0.2)','rgba(75, 192, 192, 0.2)',
+					                'rgba(153, 102, 255, 0.2)','rgba(255, 159, 64, 0.2)'
+					            ], //배경색
+								borderColr: [
+									 'rgba(255, 99, 132, 1)',
+						                'rgba(54, 162, 235, 1)','rgba(255, 206, 86, 1)',
+						                'rgba(75, 192, 192, 1)','rgba(153, 102, 255, 1)',
+						                'rgba(255, 159, 64, 1)','rgba(255, 99, 132, 1)',
+						                'rgba(54, 162, 235, 1)','rgba(255, 206, 86, 1)',
+						                'rgba(75, 192, 192, 1)','rgba(153, 102, 255, 1)',
+						                'rgba(255, 159, 64, 1)'
+					            ],//선 색
+					            //data 속성의 배열값은 ajax호출후 결과값으로 채워야 한다.
+								data:[data.january,data.february,data.march,data.april,data.may,data.june,data.july,data.august,data.september,data.october,data.november,data.december],					
+								borderWidth:1
+							}]
+							
+						},//차트안에 사용되는 모든 데어터
+						options:{}					
+					});
+					 totalOfMonthByYearChartCheck+=1;
+					$('#canvas').append('</canvas>')
+					}else if(totalOfMonthByYearChartCheck%2==1){
+						$('#canvas').html("");
+						totalOfMonthByYearChartCheck+=1;
+					}				
+				}		
+			});
+		}
+	});
+	let totalOfMonthByYearTableCheck =0;
+	$('#totalOfMonthByYearTable').click(function(){
+		
+		//$('#totalOfMonthByYearTableResult').html('totalOfMonthByYearTableResult');
+		if($('#year').val()==""){
+			$('#yearCheck').html('입력해주세요');
+		}else{
+			$('#yearCheck').html("");
+			$.ajax({
+				url:'/totalOfMonthByYear/'+$('#year').val(),
+				type:'get',
+				success:function(data){
+					
+					console.log(data);
+					if(totalOfMonthByYearTableCheck%2==0){
+						let html=` 
+							<table class="table table-bordered" style="text-align:center; margin-top: 20px; ">
+								<thead>
+								<tr>
+									<th>1월(january)</th>
+									<th>2월(february)</th>
+									<th>3월(march)</th>
+									<th>4월(april)</th>
+									<th>5월(may)</th>
+									<th>6월(june)</th>
+									<th>7월(july)</th>
+									<th>8월(august)</th>
+									<th>9월(september)</th>
+									<th>10월(octber)</th>
+									<th>11월(november)</th>
+									<th>12월(december)</th>
+								</tr>
+								</thead>
+								<tbody>
+								<tr>
+									<td>${data.january}</td>
+									<td>${data.february}</td>
+									<td>${data.march}</td>
+									<td>${data.april}</td>
+									<td>${data.may}</td>
+									<td>${data.june}</td>
+									<td>${data.july}</td>
+									<td>${data.august}</td>
+									<td>${data.september}</td>
+									<td>${data.october}</td>
+									<td>${data.november}</td>
+									<td>${data.december}</td>
+								</tr>
+								</tbody>
+							</table>
+						`;
+						$('#totalOfMonthByYearTableResult').html(html);
+						totalOfMonthByYearTableCheck+=1;
+					}else if(totalOfMonthByYearTableCheck%2==1){
+						$('#totalOfMonthByYearTableResult').html("");
+						totalOfMonthByYearTableCheck+=1;
+					}
+				}
+			});
+		}
+	});
+
 </script>
 </html>
